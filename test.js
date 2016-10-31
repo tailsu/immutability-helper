@@ -103,11 +103,6 @@ describe('update', function() {
       update(obj, {$set: {c: 'd'}});
       expect(obj).toEqual({a: 'b'});
     });
-    it('keeps reference equality when possible', function() {
-      var original = {a: 1};
-      expect(update(original, {a: {$set: 1}})).toBe(original);
-      expect(update(original, {a: {$set: 2}})).toNotBe(original);
-    });
   });
 
   describe('$apply', function() {
@@ -126,14 +121,6 @@ describe('update', function() {
       expect(update.bind(null, 2, {$apply: 123})).toThrow(
         'update(): expected spec of $apply to be a function; got 123.'
       );
-    });
-    it('keeps reference equality when possible', function() {
-      var original = {a: {b: {}}};
-      function identity(val) {
-       return val;
-      }
-      expect(update(original, {a: {$apply: identity}})).toBe(original);
-      expect(update(original, {a: {$apply: applier}})).toNotBe(original);
     });
   });
 
@@ -279,5 +266,41 @@ describe('update', function() {
       expect(myUpdate.bind(null, {$addtax: 0.10}, {$addtax: 0.10})).toNotThrow();
     });
 
+  });
+
+  describe('keeps reference equality when possible for', function() {
+    it('$push', function() {
+      var object = [1, 2, 3];
+      var object2 = update(object, {$push: []});
+      expect(object).toBe(object2);
+    });
+    it('$unshift', function() {
+      var object = [1, 2, 3];
+      var object2 = update(object, {$unshift: []});
+      expect(object).toBe(object2);
+    });
+    it('$splice', function() {
+      var object = [1, 2, 3];
+      var object2 = update(object, {$splice:[]});
+      expect(object).toBe(object2);
+    });
+    it('$merge', function() {
+      var object = {a: 1};
+      var object2 = update(object, {$merge: {}});
+      expect(object).toBe(object2);
+    });
+    it('$set', function() {
+      var object = {a: 1};
+      var object2 = update(object, {a: {$set: 1}});
+      expect(object).toBe(object2);
+    });
+    it('$apply', function() {
+      var object = {a: {}};
+      function identity(val) {
+       return val;
+      }
+      var object2 = update(object, {$apply: identity});
+      expect(object).toBe(object2);
+    });
   });
 });

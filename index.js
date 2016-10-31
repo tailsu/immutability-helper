@@ -71,15 +71,18 @@ function newContext() {
 var defaultCommands = {
   $push: function(value, original, spec) {
     invariantPushAndUnshift(original, spec, '$push');
-    return original.concat(value);
+    return value.length ? original.concat(value) : original;
   },
   $unshift: function(value, original, spec) {
     invariantPushAndUnshift(original, spec, '$unshift');
-    return value.concat(original);
+    return value.length ? value.concat(original) : original;
   },
   $splice: function(value, newObject, spec, object) {
+    invariantSplices(newObject, spec);
+    if (!value.length) {
+      return newObject;
+    }
     var originalValue = newObject === object ? copy(object) : newObject;
-    invariantSplices(originalValue, spec);
     value.forEach(function(args) {
       invariantSplice(args);
       splice.apply(originalValue, args);
@@ -91,8 +94,12 @@ var defaultCommands = {
     return value;
   },
   $merge: function(value, newObject, spec, object) {
+    invariantMerge(newObject, value);
+    var keys = Object.keys(value);
+    if (!keys.length) {
+      return newObject;
+    }
     var originalValue = newObject === object ? copy(object) : newObject;
-    invariantMerge(originalValue, value);
     Object.keys(value).forEach(function(key) {
       originalValue[key] = value[key];
     });
