@@ -244,6 +244,11 @@ describe('update', function() {
     });
   });
 
+  it('auto-creates missing elements on the path', function() {
+    expect(update({}, {a: {b: {$set: 1}}})).toEqual({
+      a: {b: 1}
+    })
+  })
 });
 
 

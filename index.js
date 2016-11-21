@@ -54,7 +54,7 @@ function newContext() {
       }
     }
     for (var key in spec) {
-      var nextValueForKey = update(object[key], spec[key]);
+      var nextValueForKey = update(object[key] || {}, spec[key]);
       if (nextValueForKey === object[key]) {
         continue;
       }
